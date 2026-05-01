@@ -9,7 +9,7 @@ RUN npm run build
 # Build Backend
 FROM golang:alpine AS backend-builder
 WORKDIR /app
-COPY backend/go.mod backend/go.sum ./
+COPY backend/go.mod ./
 RUN go mod download
 COPY backend/ ./
 RUN go build -o speedcheck-server ./cmd/server
