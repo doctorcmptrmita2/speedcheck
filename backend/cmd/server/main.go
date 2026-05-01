@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -17,7 +18,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 )
 
@@ -112,7 +112,7 @@ func DownloadHandler(maxSeconds int) http.HandlerFunc {
 
 func UploadHandler(maxBytes int64) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := os.Copy(os.Discard, http.MaxBytesReader(w, r.Body, maxBytes))
+		_, err := io.Copy(io.Discard, http.MaxBytesReader(w, r.Body, maxBytes))
 		if err != nil {
 			http.Error(w, "Upload too large", http.StatusRequestEntityTooLarge)
 			return
@@ -121,22 +121,13 @@ func UploadHandler(maxBytes int64) http.HandlerFunc {
 	}
 }
 
-type TelemetryData struct {
-	Download float64 `json:"download"`
-	Upload   float64 `json:"upload"`
-	Ping     float64 `json:"ping"`
-	Jitter   float64 `json:"jitter"`
-	Quality  float64 `json:"quality"`
-	ISP      string  `json:"isp_info"`
-}
-
 func SaveTelemetryHandler(w http.ResponseWriter, r *http.Request) {
 	var data TelemetryData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id := uuid.New().String()
+	id := fmt.Sprintf("%d", time.Now().UnixNano())
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	_, err := DB.Exec(`INSERT INTO results (id, download, upload, ping, jitter, quality, ip_address, isp_info) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, id, data.Download, data.Upload, data.Ping, data.Jitter, data.Quality, ip, data.ISP)
