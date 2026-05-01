@@ -25,6 +25,7 @@ export default function SpeedTestPanel() {
   const [livePing, setLivePing] = useState(0);
   const [result, setResult] = useState<SpeedTestResult | null>(null);
   const [error, setError] = useState<string>("");
+  const [telemetryId, setTelemetryId] = useState<string>("");
   const abortRef = useRef(false);
 
   const isRunning =
@@ -44,6 +45,7 @@ export default function SpeedTestPanel() {
     setLiveSpeed(0);
     setLivePing(0);
     setResult(null);
+    setTelemetryId("");
     setError("");
     abortRef.current = false;
 
@@ -52,6 +54,7 @@ export default function SpeedTestPanel() {
       onPingProgress: (ping) => setLivePing(ping),
       onDownloadProgress: (mbps) => setLiveSpeed(mbps),
       onUploadProgress: (mbps) => setLiveSpeed(mbps),
+      onTelemetryId: (id) => setTelemetryId(id),
       onComplete: (res) => {
         setResult(res);
         setLiveSpeed(0);
@@ -66,6 +69,7 @@ export default function SpeedTestPanel() {
   const handleRetry = useCallback(() => {
     setPhase("idle");
     setError("");
+    setTelemetryId("");
     setResult(null);
   }, []);
 
@@ -202,8 +206,24 @@ export default function SpeedTestPanel() {
 
       {/* Result summary */}
       {phase === "completed" && result && (
-        <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center gap-6">
           <ResultSummary result={result} />
+          
+          {telemetryId && (
+            <div className="flex items-center gap-3 animate-in fade-in duration-700">
+              <a 
+                href={`/result/${telemetryId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[rgba(56,189,248,0.1)] hover:bg-[rgba(56,189,248,0.2)] text-[#38BDF8] border border-[#38BDF8]/20 px-6 py-2.5 rounded-full font-medium text-sm flex items-center gap-2 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Share Result
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

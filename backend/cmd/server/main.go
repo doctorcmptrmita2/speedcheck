@@ -12,12 +12,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/speedcheck-dev/backend/internal/config"
+	"github.com/speedcheck-dev/backend/internal/database"
 	"github.com/speedcheck-dev/backend/internal/handlers"
 	"github.com/speedcheck-dev/backend/internal/middleware"
 )
 
 func main() {
 	cfg := config.Load()
+
+	// Initialize Database
+	// We use a local SQLite file in the data/ directory
+	os.MkdirAll("data", os.ModePerm)
+	if err := database.InitDB("data/speedcheck.db"); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
 	r := chi.NewRouter()
 
@@ -41,6 +49,10 @@ func main() {
 		api.With(testLimiter.Middleware).
 			With(middleware.Timeout(30*time.Second)).
 			Post("/upload", handlers.UploadHandler(cfg.UploadTestMaxBytes))
+			
+		api.Get("/servers", handlers.ServersHandler)
+		api.Post("/telemetry", handlers.SaveTelemetryHandler)
+		api.Get("/telemetry/{id}", handlers.GetTelemetryHandler)
 	})
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
