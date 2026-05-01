@@ -4,7 +4,7 @@ import type {
   TestCallbacks,
 } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://speedcheck-speedcheckbackend-m3bbw3-e9ef22-109-199-118-106.traefik.me";
 
 // ─── Ping Test ──────────────────────────────────────────────────────────────────
 
