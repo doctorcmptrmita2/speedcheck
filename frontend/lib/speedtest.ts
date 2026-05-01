@@ -4,7 +4,7 @@ import type {
   TestCallbacks,
 } from "./types";
 
-const API_BASE = "";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 // ─── Ping Test ──────────────────────────────────────────────────────────────────
 
@@ -254,7 +254,7 @@ export function getConnectionInterpretation(rating: ConnectionRating): string {
 
 export async function saveTelemetry(result: SpeedTestResult): Promise<string | null> {
   try {
-    const res = await fetch("/api/telemetry", {
+    const res = await fetch(`${API_BASE}/api/telemetry`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
