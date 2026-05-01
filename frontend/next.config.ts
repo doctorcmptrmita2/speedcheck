@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   output: "standalone",
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://speedcheck-speedcheckbackend-m3bbw3-e9ef22-109-199-118-106.traefik.me";
     return [
       {
         source: "/api/:path*",
