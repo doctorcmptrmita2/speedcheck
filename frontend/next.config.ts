@@ -2,19 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  output: "standalone",
-  async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://109.199.118.106:8080";
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
-      },
-      {
-        source: "/health",
-        destination: `${backendUrl}/health`,
-      },
-    ];
+  output: "export",
+  images: {
+    unoptimized: true,
   },
 };
 

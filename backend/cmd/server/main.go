@@ -39,6 +39,14 @@ func main() {
 	// Routes
 	r.Get("/health", handlers.HealthHandler)
 
+	// Serve Static Frontend
+	fs := http.FileServer(http.Dir("public"))
+	r.Handle("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If the request is for an API or health, chi router will handle it.
+		// Otherwise, serve static files.
+		fs.ServeHTTP(w, r)
+	}))
+
 	r.Route("/api", func(api chi.Router) {
 		api.Get("/ping", handlers.PingHandler)
 
@@ -53,6 +61,12 @@ func main() {
 		api.Get("/servers", handlers.ServersHandler)
 		api.Post("/telemetry", handlers.SaveTelemetryHandler)
 		api.Get("/telemetry/{id}", handlers.GetTelemetryHandler)
+	})
+
+	// Serve Static Frontend (Fallback)
+	fs := http.FileServer(http.Dir("public"))
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
 	})
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
